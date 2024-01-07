@@ -1,0 +1,46 @@
+{
+    "songs": [
+        {
+            "name": "Thuyền Quyên",
+            "singer": "Diệu Kiên",
+            "path": "./assets/song/ThuyenQuyenOrinnRemix-DieuKien-7805774.mp3",
+            "image": "./assets/images/2ec51983dbff681cc3cb7af20b4c7ad2.jpg"
+        },
+        {
+            "name": "Daydreams x Last Christmas",
+            "singer": "KI AN, Toann",
+            "path": "./assets/song/DaydreamsXLastChristmasToannRemix-DangCapNhat-12767407.mp3",
+            "image": "./assets/images/chrismas.jpg"
+        },
+        {
+            "name": "Cơm Đoàn Viên",
+            "singer": "Thành Đạt",
+            "path": "./assets/song/ComDoanVien-ThanhDat-8504795.mp3",
+            "image": "./assets/images/cơm đoàn viên.jpg"
+        },
+        {
+            "name": "Con Hứa Sẽ Về",
+            "singer": "Lê Bảo Bình",
+            "path": "./assets/song/ConHuaSeVe-LeBaoBinh-8477494.mp3",
+            "image": "./assets/images/con hua se ve.jpg"
+        },
+        {
+            "name": "Giờ Không Cưới Thì Nào Cưới",
+            "singer": "Hồng Quân WyTy, Young P",
+            "path": "./assets/song/GioKhongCuoiThiNaoCuoi-HongQuanWyTyYoungP-11721897 (1).mp3",
+            "image": "./assets/images/giờ không cưới thì nào cưới.jpg"
+        },
+        {
+            "name": "Thương Biệt Ly",
+            "singer": "Chu Thúy Quỳnh",
+            "path": "./assets/song/ThuongLyBietLoiViet-ChuThuyQuynh-11520445.mp3",
+            "image": "./assets/images/Thương biệt ly.jpg"
+        },
+        {
+            "name": "Hoa Điêu Thuyên",
+            "singer": "Yamix Hầu Ca, Gấu",
+            "path": "./assets/song/HoaDieuThuyen-YamixHauCaGau-7802919.mp3",
+            "image": "./assets/images/Hoa điêu thuyền.jpg"
+        }
+    ]
+}

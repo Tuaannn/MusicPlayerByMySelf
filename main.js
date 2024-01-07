@@ -1,120 +1,87 @@
+const url = "http://localhost:3000/songs";
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
-const PLAYER_STORAGE_KEY = "Tuaan";
 
-const playList = $(".playlist");
+const PLAYER_STORAGE_KEY = "Tuaan";
+const MUSIC_VOLUME = "Tuaannn";
+
+const songName = $(".name");
+const author = $(".author");
+const audio = $(".audio");
 const cd = $(".cd");
+const pauseBtn = $(".pause");
+const nextBtn = $(".next-song");
+const prevBtn = $(".prev-song");
 const cdThumb = $(".cd-thumb");
-const heading = $(".heading");
-const audio = $("#audio");
-const playBtn = $(".btn-toggle-play");
-const player = $(".player");
-const progress = $(".progress");
-const nextBtn = $(".btn-next");
-const prevBtn = $(".btn-prev");
-const randomBtn = $(".btn-random");
-const repeatBtn = $(".btn-repeat");
+const progress = $(".seek-time");
+const volumeControl = $(".volume-range");
+const totalTime = $(".total-time");
+const second = $(".second");
+const repeatBtn = $(".repeat-song");
+const randomBtn = $(".random-song");
 
 const app = {
     currentIndex: 0,
     isPlaying: false,
-    isRandom: false,
     isRepeat: false,
+    isRandom: false,
 
-    getConfig: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
-
-    songs: [
-        {
-            name: "Thuyền Quyên",
-            singer: "Diệu Kiên",
-            path: "./assets/song/ThuyenQuyenOrinnRemix-DieuKien-7805774.mp3",
-            image: "./assets/images/2ec51983dbff681cc3cb7af20b4c7ad2.jpg",
-        },
-        {
-            name: "Daydreams x Last Christmas",
-            singer: "KI AN, Toann",
-            path: "./assets/song/DaydreamsXLastChristmasToannRemix-DangCapNhat-12767407.mp3",
-            image: "./assets/images/chrismas.jpg",
-        },
-        {
-            name: "Cơm Đoàn Viên",
-            singer: "Thành Đạt",
-            path: "./assets/song/ComDoanVien-ThanhDat-8504795.mp3",
-            image: "./assets/images/cơm đoàn viên.jpg",
-        },
-        {
-            name: "Con Hứa Sẽ Về",
-            singer: "Lê Bảo Bình",
-            path: "./assets/song/ConHuaSeVe-LeBaoBinh-8477494.mp3",
-            image: "./assets/images/con hua se ve.jpg",
-        },
-        {
-            name: "Giờ Không Cưới Thì Nào Cưới",
-            singer: "Hồng Quân WyTy, Young P",
-            path: "./assets/song/GioKhongCuoiThiNaoCuoi-HongQuanWyTyYoungP-11721897 (1).mp3",
-            image: "./assets/images/giờ không cưới thì nào cưới.jpg",
-        },
-        {
-            name: "Thương Biệt Ly",
-            singer: "Chu Thúy Quỳnh",
-            path: "./assets/song/ThuongLyBietLoiViet-ChuThuyQuynh-11520445.mp3",
-            image: "./assets/images/Thương biệt ly.jpg",
-        },
-        {
-            name: "Hoa Điêu Thuyên",
-            singer: "Yamix Hầu Ca, Gấu",
-            path: "./assets/song/HoaDieuThuyen-YamixHauCaGau-7802919.mp3",
-            image: "./assets/images/Hoa điêu thuyền.jpg",
-        },
-    ],
-
-    render: function () {
-        const html = this.songs.map((song, index) => {
-            return `
-                <div class="song ${
-                    index === this.currentIndex ? "active" : ""
-                }" data-index = ${index}>
-                    <div
-                        class="thumb"
-                        style="
-                            background-image: url('${song.image}');
-                        "
-                    ></div>
-                    <div class="body">
-                        <h3 class="title">${song.name}</h3>
-                        <p class="author">${song.singer}</p>
-                    </div>
-                    <div class="option">
-                        <i class="fas fa-ellipsis-h"></i>
-                    </div>
-                </div>
-      `;
-        });
-
-        playList.innerHTML = html.join("");
+    getConfig: JSON.parse(localStorage.getItem("PLAYER_STORAGE_KEY")) || {},
+    setConfig: function (key, value) {
+        this.getConfig[key] = value;
+        localStorage.setItem(
+            "PLAYER_STORAGE_KEY",
+            JSON.stringify(this.getConfig)
+        );
     },
 
-    handleEvent: function () {
-        const cdWidth = cd.offsetWidth;
+    getVolume: JSON.parse(localStorage.getItem("MUSIC_VOLUME")) || {},
+    setVolume: function (key, value) {
+        this.getVolume[key] = value;
+
+        localStorage.setItem("MUSIC_VOLUME", JSON.stringify(this.getVolume));
+    },
+
+    getSong: function (data) {
         const _this = this;
+        fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Ket noi mang khong thanh cong");
+                }
+                return response.json();
+            })
+            .then(data)
+            .catch((err) => {
+                console.error("Đã xảy ra lỗi:", err);
+            });
+    },
 
-        document.onscroll = function () {
-            const scrollTop =
-                window.scrollY || document.documentElement.scrollTop;
-
-            const newCdWidth = cdWidth - scrollTop;
-            cd.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
-
-            cd.style.opacity = newCdWidth / cdWidth;
-        };
-
+    handleEvents: function (data) {
+        const _this = this;
         const cdAnimate = cd.animate([{ transform: "rotate(360deg)" }], {
-            duration: 10000,
             iterations: Infinity,
+            duration: 10000,
         });
+
         cdAnimate.pause();
 
-        playBtn.onclick = function () {
+        audio.ontimeupdate = function () {
+            if (audio.duration) {
+                const progressPercent =
+                    (audio.currentTime / audio.duration) * 100;
+                progress.value = progressPercent;
+            }
+
+            second.innerHTML = _this.formatTime(audio.currentTime);
+        };
+
+        progress.oninput = function () {
+            const seekTime = (audio.duration / 100) * progress.value;
+            audio.currentTime = seekTime;
+        };
+
+        pauseBtn.onclick = function () {
             if (_this.isPlaying) {
                 audio.pause();
             } else {
@@ -123,63 +90,65 @@ const app = {
         };
 
         audio.onplay = function () {
-            player.classList.add("playing");
             _this.isPlaying = true;
-
             cdAnimate.play();
         };
 
         audio.onpause = function () {
-            player.classList.remove("playing");
-            cdAnimate.pause();
-
             _this.isPlaying = false;
-        };
-
-        audio.ontimeupdate = function () {
-            if (audio.duration) {
-                const progressPercent = Math.floor(
-                    (audio.currentTime / audio.duration) * 100
-                );
-                progress.value = progressPercent;
-            }
-        };
-
-        progress.oninput = function () {
-            const seekTime = (audio.duration * progress.value) / 100;
-
-            audio.currentTime = seekTime;
+            cdAnimate.pause();
         };
 
         nextBtn.onclick = function () {
             if (_this.isRandom) {
-                _this.randomSong();
+                _this.radomSong(data);
             } else {
-                _this.nextSong();
+                _this.nextSong(data);
             }
 
             if (_this.isPlaying) {
                 audio.play();
             }
-            progress.value = 0;
-
-            _this.render();
-            _this.scrollInterView();
         };
 
         prevBtn.onclick = function () {
             if (_this.isRandom) {
-                _this.randomSong();
+                _this.radomSong(data);
             } else {
-                _this.prevSong();
+                _this.prevSong(data);
             }
 
             if (_this.isPlaying) {
                 audio.play();
             }
-            _this.render();
-            progress.value = 0;
-            _this.scrollInterView();
+        };
+
+        audio.volume = volumeControl.value / 100;
+
+        volumeControl.oninput = function () {
+            var newVolume = volumeControl.value / 100;
+
+            audio.volume = newVolume;
+
+            _this.setVolume("volume", newVolume);
+        };
+
+        audio.onended = function () {
+            if (_this.isRepeat) {
+                _this.loadCurrentSong();
+            } else if (_this.isRandom) {
+                _this.radomSong(data);
+            } else {
+                _this.nextSong(data);
+            }
+            audio.play();
+        };
+
+        repeatBtn.onclick = function () {
+            _this.isRepeat = !_this.isRepeat;
+            repeatBtn.classList.toggle("active", _this.repeatBtn);
+
+            _this.setConfig("isRepeat", _this.isRepeat);
         };
 
         randomBtn.onclick = function () {
@@ -188,93 +157,18 @@ const app = {
 
             _this.setConfig("isRandom", _this.isRandom);
         };
-
-        repeatBtn.onclick = function () {
-            _this.isRepeat = !_this.isRepeat;
-            repeatBtn.classList.toggle("active", _this.isRepeat);
-
-            _this.setConfig("isRepeat", _this.isRepeat);
-        };
-
-        audio.onended = function () {
-            if (_this.isRandom && !_this.isRepeat) {
-                _this.randomSong();
-            } else if (_this.isRepeat) {
-                _this.loadCurrentSong();
-            } else {
-                _this.nextSong();
-            }
-
-            _this.render();
-            audio.play();
-        };
-
-        playList.onclick = function (e) {
-            const songNode = e.target.closest(".song:not(.active)");
-
-            if (songNode || e.target.closest(".option")) {
-                if (songNode) {
-                    _this.currentIndex = Number(songNode.dataset.index);
-                    _this.loadCurrentSong();
-                    _this.render();
-                    audio.play();
-                }
-            }
-        };
     },
 
-    nextSong: function () {
-        this.currentIndex++;
-        if (this.currentIndex >= this.songs.length) {
-            this.currentIndex = 0;
-        }
-        this.loadCurrentSong();
-
-        if (this.isPlaying) {
-            audio.play();
-        }
-        progress.value = 0;
-    },
-
-    prevSong: function () {
-        this.currentIndex--;
-        if (this.currentIndex <= 0) {
-            this.currentIndex = this.songs.length - 1;
-        }
-
-        this.loadCurrentSong();
-    },
-
-    scrollInterView: function () {
-        $(".song.active").scrollIntoView({
-            behavior: "smooth",
-            block: "end",
-            inline: "end",
-        });
-    },
-
-    randomSong: function () {
+    radomSong: function (data) {
         let newCurrentIndex;
+
         do {
-            newCurrentIndex = Math.floor(Math.random() * this.songs.length);
-        } while (this.currentIndex == newCurrentIndex);
+            newCurrentIndex = Math.floor(Math.random() * data.length);
+        } while (newCurrentIndex === this.currentIndex);
 
         this.currentIndex = newCurrentIndex;
+
         this.loadCurrentSong();
-    },
-
-    loadCurrentSong: function () {
-        heading.innerHTML = this.currentSong.name;
-        cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
-        audio.src = this.currentSong.path;
-    },
-
-    defineProperties: function () {
-        Object.defineProperty(this, "currentSong", {
-            get: function () {
-                return this.songs[this.currentIndex];
-            },
-        });
     },
 
     loadConfig: function () {
@@ -282,25 +176,75 @@ const app = {
         this.isRepeat = this.getConfig.isRepeat;
     },
 
+    loadVolume: function () {
+        newVolume = this.getVolume.volume;
+    },
+
+    nextSong: function (data) {
+        this.currentIndex++;
+        if (this.currentIndex >= data.length) {
+            this.currentIndex = 0;
+        }
+
+        this.loadCurrentSong();
+    },
+
+    prevSong: function (data) {
+        this.currentIndex--;
+        if (this.currentIndex <= 0) {
+            this.currentIndex = data.length - 1;
+        }
+        this.loadCurrentSong();
+    },
+
+    loadCurrentSong: function () {
+        const _this = this;
+        author.innerHTML = this.currentSong.singer;
+        songName.innerHTML = this.currentSong.name;
+        cdThumb.style.backgroundImage = `url("${this.currentSong.image}")`;
+        audio.src = this.currentSong.path;
+
+        audio.onloadedmetadata = function () {
+            const durationSong = audio.duration;
+            totalTime.innerHTML = _this.formatTime(durationSong);
+        };
+    },
+
+    formatTime: function (seconds) {
+        let minutes = Math.floor(seconds / 60);
+        let remainSeconds = Math.floor(seconds % 60);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        remainSeconds =
+            remainSeconds < 10 ? "0" + remainSeconds : remainSeconds;
+        return minutes + ":" + remainSeconds;
+    },
+
+    defineProperties: function (data) {
+        if (Array.isArray(data) && data.length > 0) {
+            Object.defineProperty(this, "currentSong", {
+                get: function () {
+                    return data[this.currentIndex];
+                },
+            });
+        } else {
+            console.error("Dữ liệu trống");
+        }
+    },
+
     start: function () {
         this.loadConfig();
-        this.defineProperties();
-        this.render();
-        this.loadCurrentSong();
-        this.handleEvent();
+        this.loadVolume();
+        this.getSong(this.defineProperties.bind(this));
+        this.getSong(this.loadCurrentSong.bind(this));
+        this.getSong(this.handleEvents.bind(this));
+        this.getSong(this.nextSong.bind(this));
 
         randomBtn.classList.toggle("active", this.isRandom);
         repeatBtn.classList.toggle("active", this.isRepeat);
+
+        volumeControl.value = newVolume * 100;
     },
 };
 
 app.start();
-
-// const ob = {
-//     name: "Tuaans",
-//     age: 10,
-// };
-
-// localStorage.setItem("Tuaan", JSON.stringify(ob));
-// const a = JSON.parse(localStorage.getItem("Tuaan"));
-// console.log(a);

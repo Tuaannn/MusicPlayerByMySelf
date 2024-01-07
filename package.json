@@ -1,0 +1,12 @@
+{
+    "name": "music-player",
+    "version": "1.0.0",
+    "main": "main.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "sass scss:assets/css -w"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": ""
+}
