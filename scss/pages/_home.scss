@@ -2,14 +2,15 @@
 @use "../theme";
 main {
     width: 375px;
+    height: 100vh;
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
 
 .player {
-    // background-color: var(--background);
-    background-color: rgb(99, 99, 165);
+    background-color: var(--background);
+    // background-color: rgb(99, 99, 165);
     padding: 30px 20px;
 }
 
