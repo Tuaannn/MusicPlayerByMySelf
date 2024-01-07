@@ -216,6 +216,7 @@ main {
   height: 100%;
   width: 100%;
   background-size: cover;
+  background-color: #ddd;
   background-image: url(../../assets/images/chrismas.jpg);
 }
 
