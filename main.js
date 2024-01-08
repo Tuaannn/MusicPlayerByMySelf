@@ -19,6 +19,7 @@ const totalTime = $(".total-time");
 const second = $(".second");
 const repeatBtn = $(".repeat-song");
 const randomBtn = $(".random-song");
+let IndexPlayedSong = [];
 
 const app = {
     currentIndex: 0,
@@ -162,11 +163,29 @@ const app = {
     radomSong: function (data) {
         let newCurrentIndex;
 
-        do {
-            newCurrentIndex = Math.floor(Math.random() * data.length);
-        } while (newCurrentIndex === this.currentIndex);
+        // thêm index của bài hát hiện tại vào mảng IndexPlayedSong
+        IndexPlayedSong.push(this.currentIndex);
 
-        this.currentIndex = newCurrentIndex;
+        // Lấy ra những bài hát còn lại (không chứa những bài hát đã phát rồi)
+        let remainSongs = data.filter((song, index) => {
+            return !IndexPlayedSong.includes(index);
+        });
+
+        if (remainSongs.length === 0) {
+            IndexPlayedSong = [];
+        }
+
+        // lấy indext mới
+        newCurrentIndex = Math.floor(Math.random() * remainSongs.length);
+
+        // từ index mới, lấy ra thông tin để lấy ra inddexx từ mảng cũ
+        this.currentIndex = data.indexOf(remainSongs[newCurrentIndex]);
+
+        IndexPlayedSong.push(this.currentIndex);
+
+        if (this.currentIndex === -1) {
+            this.currentIndex = Math.floor(Math.random() * data.length);
+        }
 
         this.loadCurrentSong();
     },
